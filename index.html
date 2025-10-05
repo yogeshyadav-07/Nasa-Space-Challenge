@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic Journey: Interactive Space Exploration</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-bg: #00000a; 
+            --text-color: #e0e1dd;
+            --accent-glow: #00eaff; 
+            --accent-purple: #b983ff;
+            --accent-pink: #ff006e;
+            --button-bg: #1a1a2e;
+            --button-border: #0f3460;
+            --button-hover-bg: #2a2a4a;
+            --active-glow: rgba(0, 234, 255, 0.8);
+            --quote-bg: #0f3460; 
+            --video-box-bg: #051937;
+            
+            --box-height: 70px;
+            --box-gap: 10px;
+            --box-total-height: 80px;
+            --container-padding-y: 1.5rem;
+            --header-height: 48px;
+            --container-height-fixed: 400px;
+        }
+
+        @keyframes starlight {
+            from { background-position: 0 0; }
+            to { background-position: 1000px 0; } 
+        }
+
+        @keyframes pulseGlow {
+            0% { text-shadow: 0 0 20px var(--accent-glow), 0 0 30px rgba(0, 234, 255, 0.5); }
+            50% { text-shadow: 0 0 30px var(--accent-purple), 0 0 50px rgba(185, 131, 255, 0.7); }
+            100% { text-shadow: 0 0 20px var(--accent-glow), 0 0 30px rgba(0, 234, 255, 0.5); }
+        }
+
+        @keyframes slideUpLoop {
+            0% { 
+                transform: translateY(calc(var(--container-height-fixed) - var(--box-total-height) * 1)); 
+            }
+            99.9% { 
+                transform: translateY(calc(var(--box-total-height) * -4 - 10px));
+            }
+            100% {
+                transform: translateY(calc(var(--container-height-fixed) - var(--box-total-height) * 1)); 
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes shootingStar {
+            0% {
+                transform: translateX(-100px) translateY(-100px);
+                opacity: 1;
+            }
+            70% { opacity: 1; }
+            100% {
+                transform: translateX(1000px) translateY(1000px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes rotateGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        body {
+            background-color: var(--primary-bg); 
+            color: var(--text-color);
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image: url('https://www.transparenttextures.com/patterns/stardust.png'), 
+                              linear-gradient(to bottom, var(--primary-bg), #1a1a2e); 
+            background-attachment: fixed;
+            animation: starlight 40s linear infinite; 
+            overflow-x: hidden;
+            padding-bottom: 5rem;
+            position: relative;
+        }
+
+        /* Animated Background Stars */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        /* Shooting Stars */
+        .shooting-star {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background: linear-gradient(90deg, white, transparent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.8);
+            animation: shootingStar 3s linear;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            padding: 3rem 1rem 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, var(--accent-glow), var(--accent-purple), var(--accent-pink), var(--accent-glow));
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0 0 0.5rem 0;
+            letter-spacing: 4px;
+            animation: rotateGradient 5s ease infinite, float 6s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px rgba(0, 234, 255, 0.5));
+        }
+
+        header p {
+            font-size: 1.2rem;
+            color: var(--text-color);
+            opacity: 0.9;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Particle Effect Container */
+        .particle-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .button-container {
+            display: flex;
+            flex-wrap: wrap; 
+            justify-content: center;
+            gap: 2.5rem; 
+            max-width: 1200px;
+            padding: 0 1rem;
+            margin-bottom: 4rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .interactive-button-wrapper {
+            position: relative; 
+            display: block;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .interactive-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 280px; 
+            height: 280px; 
+            background: linear-gradient(135deg, var(--button-bg), #2a2a4a);
+            border: 2px solid var(--button-border);
+            border-radius: 20px;
+            cursor: pointer; 
+            color: var(--text-color);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 234, 255, 0.2), inset 0 0 20px rgba(0, 234, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .interactive-button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 234, 255, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .interactive-button-wrapper:hover .interactive-button::before {
+            opacity: 1;
+        }
+
+        .interactive-button-wrapper:hover .interactive-button {
+            transform: translateY(-15px) scale(1.05) rotateZ(2deg);
+            background: linear-gradient(135deg, var(--button-hover-bg), #3a3a5a);
+            border-color: var(--accent-glow);
+            box-shadow: 0 15px 60px var(--accent-glow), 0 0 80px rgba(0, 234, 255, 0.4);
+            color: white;
+        }
+
+        .button-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 0 10px currentColor);
+            transition: transform 0.3s;
+        }
+
+        .interactive-button-wrapper:hover .button-icon {
+            transform: scale(1.2) rotateY(360deg);
+            transition: transform 0.6s;
+        }
+
+        .hover-info {
+            position: absolute;
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 234, 255, 0.95);
+            color: var(--primary-bg);
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(0, 234, 255, 0.5);
+        }
+
+        .interactive-button-wrapper:hover .hover-info {
+            opacity: 1;
+            bottom: -70px;
+        }
+
+        #video-boxes-container {
+            max-width: 850px; 
+            width: 90%;
+            background: linear-gradient(135deg, var(--video-box-bg), #0a2540);
+            border: 3px solid var(--accent-glow);
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(0, 234, 255, 0.4), inset 0 0 30px rgba(0, 234, 255, 0.1);
+            padding: var(--container-padding-y) 1rem;
+            margin-top: 2rem; 
+            height: var(--container-height-fixed);
+            overflow: hidden; 
+            position: relative;
+            z-index: 2;
+        }
+
+        #video-boxes-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(0, 234, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        #video-boxes-container h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent-glow);
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent-glow);
+            height: var(--header-height);
+            text-shadow: 0 0 20px rgba(0, 234, 255, 0.6);
+            position: relative;
+            z-index: 1;
+        }
+
+        .video-box {
+            display: flex;
+            flex-direction: row; 
+            align-items: center;
+            justify-content: flex-start; 
+            width: 95%; 
+            height: var(--box-height); 
+            background: linear-gradient(90deg, var(--button-bg), #252545);
+            border: 2px solid var(--button-border);
+            border-radius: 12px;
+            cursor: pointer; 
+            color: var(--text-color);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            text-align: left;
+            padding: 0 20px;
+            margin: 0 auto var(--box-gap) auto;
+            text-decoration: none; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(0, 234, 255, 0.05);
+            transition: all 0.3s ease;
+            position: absolute;
+            animation: slideUpLoop 20s linear infinite;
+        }
+        
+        .video-box:nth-of-type(1) { top: calc(var(--header-height) + var(--container-padding-y) + 5px); animation-delay: 0s; } 
+        .video-box:nth-of-type(2) { top: calc(var(--header-height) + var(--container-padding-y) + 5px); animation-delay: 5s; }
+        .video-box:nth-of-type(3) { top: calc(var(--header-height) + var(--container-padding-y) + 5px); animation-delay: 10s; } 
+        .video-box:nth-of-type(4) { top: calc(var(--header-height) + var(--container-padding-y) + 5px); animation-delay: 15s; } 
+
+        .video-box:hover {
+            transform: scale(1.03) translateX(5px);
+            background: linear-gradient(90deg, var(--button-hover-bg), #3a3a6a);
+            border-color: var(--accent-glow);
+            box-shadow: 0 0 30px var(--accent-glow), inset 0 0 20px rgba(0, 234, 255, 0.2);
+            color: white;
+            animation-play-state: paused;
+        }
+
+        .video-box-icon {
+            font-size: 2rem;
+            margin-right: 1.5rem;
+            color: var(--accent-glow);
+            text-shadow: 0 0 10px var(--accent-glow);
+            transition: transform 0.3s;
+        }
+
+        .video-box:hover .video-box-icon {
+            transform: rotate(360deg) scale(1.2);
+        }
+
+        /* Fun Fact Box */
+        .fun-fact-box {
+            max-width: 850px;
+            width: 90%;
+            background: linear-gradient(135deg, #1a1a3e, #2a2a5a);
+            border: 2px solid var(--accent-purple);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 3rem;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(185, 131, 255, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .fun-fact-box h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent-purple);
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 15px rgba(185, 131, 255, 0.6);
+        }
+
+        .fun-fact-box p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-color);
+            opacity: 0.95;
+        }
+
+        .refresh-fact-btn {
+            margin-top: 1.5rem;
+            padding: 0.8rem 2rem;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(185, 131, 255, 0.4);
+        }
+
+        .refresh-fact-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 30px rgba(185, 131, 255, 0.6);
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #778da9;
+            background: linear-gradient(90deg, var(--button-bg), #252545, var(--button-bg));
+            width: 100%;
+            border-top: 1px solid var(--button-border);
+            box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5rem;
+            }
+
+            .interactive-button {
+                width: 220px;
+                height: 220px;
+                font-size: 1.2rem;
+            }
+
+            .button-icon {
+                font-size: 3rem;
+            }
+        }
+    </style>
+
+</head>
+<body>
+    <!-- Animated Star Background -->
+    <div class="stars" id="stars"></div>
+    
+    <!-- Particle Container for Additional Effects -->
+    <div class="particle-container"></div>
+
+    <header>
+        <h1>COSMIC JOURNEY</h1>
+        <p>Explore the wonders and impacts of space</p>
+    </header>
+
+    <main class="button-container">
+        
+        <a href="satelite.html" 
+           class="interactive-button-wrapper" 
+           data-target="satellites" 
+           target="_blank" 
+           data-link="true">
+               
+            <div class="interactive-button active">
+                <span class="button-icon">🛰️</span>
+                Satellites & Technology
+            </div>
+            
+            <div class="hover-info">
+                Click to visit the more about satelite and Technology!
+            </div>
+        </a>
+
+        <a href="explorCopy.html" class="interactive-button-wrapper" data-target="solar" data-link="true">
+            <div class="interactive-button">
+                <span class="button-icon">🪐</span>
+                Exploring Our Solar System
+            </div>
+            <div class="hover-info">
+                Click to explore Solar System.
+            </div>
+        </a>
+
+        <a href="Ai_explain.html" class="interactive-button-wrapper" data-target="ai" data-link="true">
+            <div class="interactive-button">
+                <span class="button-icon" role="img" aria-label="AI explanation">✨</span>
+                AI explanation
+            </div>
+            <div class="hover-info">
+                Click to know about anything.
+            </div>
+        </a>
+
+    </main>
+    
+    <section id="video-boxes-container">
+        
+        <h2>Story Telling and Animated visualization</h2>
+
+        <a href="https://terra.nasa.gov/" class="video-box" data-video-url="https://terra.nasa.gov/" data-title="New Discoveries by NASA">
+            <span class="video-box-icon">💡</span>
+            New Discoveries by NASA
+        </a>
+
+        <a href="https://drive.google.com/file/d/1SI0i2b8ekSs-dCa-xlQiqJQG89cdZWMc/view?usp=drive_link" class="video-box" data-video-url="https://drive.google.com/file/d/1SI0i2b8ekSs-dCa-xlQiqJQG89cdZWMc/view?usp=drive_link" data-title="CME - coronal mass ejection solar flare - visual concept">
+            <span class="video-box-icon">🔄</span>
+            CME - coronal mass ejection solar flare - visual concept
+        </a>
+
+        <a href="https://drive.google.com/file/d/1e-NUAZVesz3oeLmLbGRKZWAXbjwF7KWJ/view?usp=sharing" class="video-box" data-video-url="https://drive.google.com/file/d/1e-NUAZVesz3oeLmLbGRKZWAXbjwF7KWJ/view?usp=sharing" data-title="Astroide Events and their impact on earth story visualization">
+            <span class="video-box-icon">🔭</span>
+            Astroide Events and their impact on earth story visualization
+        </a>
+        
+        <a href="https://drive.google.com/file/d/1ghf3udYVxLMOiHqPcewlxCTeo3QTCPHW/view?usp=drive_link" class="video-box" data-video-url="https://drive.google.com/file/d/1ghf3udYVxLMOiHqPcewlxCTeo3QTCPHW/view?usp=drive_link" data-title="Blackhole and their impact on earth story visualization">
+            <span class="video-box-icon">🕳️</span>
+            Blackhole and their impact on earth story visualization
+        </a>
+
+    </section>
+
+    <!-- Fun Space Facts Section -->
+    <section class="fun-fact-box">
+        <h3>🌟 Did You Know?</h3>
+        <p id="fact-text">Loading space fact...</p>
+        <button class="refresh-fact-btn" onclick="updateSpaceFact()">New Fact ✨</button>
+    </section>
+
+    <footer>
+        <p>Created by SaVeya Group for an interactive space learning experience. | NASA Facts are sourced from public domain mission information.</p>
+    </footer>
+
+    <script>
+        // Space Facts Database
+        const SPACE_FACTS = [
+            "One day on Venus is longer than one year on Venus! It takes 243 Earth days to rotate once but only 225 Earth days to orbit the Sun.",
+            "Neutron stars are so dense that a teaspoon of their material would weigh about 6 billion tons on Earth.",
+            "There are more stars in the universe than grains of sand on all of Earth's beaches - estimated at over 100 billion trillion stars!",
+            "The footprints on the Moon will last for millions of years because there's no wind or water to erase them.",
+            "If two pieces of the same type of metal touch in space, they will permanently bond together - a process called cold welding.",
+            "Saturn's moon Titan has liquid methane lakes and is the only moon in our solar system with a substantial atmosphere.",
+            "The sunset on Mars appears blue due to fine dust particles in the Martian atmosphere.",
+            "A single solar flare can release the energy equivalent to millions of 100-megaton hydrogen bombs exploding at once!",
+            "The largest known star, UY Scuti, is so big that if placed at the center of our solar system, it would extend past Jupiter's orbit.",
+            "Black holes aren't actually black - they glow with 'Hawking radiation' at quantum levels!"
+        ];
+
+        // Initialize Background Stars
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const starCount = 100;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Create Shooting Stars
+        function createShootingStar() {
+            const shootingStar = document.createElement('div');
+            shootingStar.className = 'shooting-star';
+            shootingStar.style.left = Math.random() * 50 + '%';
+            shootingStar.style.top = Math.random() * 50 + '%';
+            document.body.appendChild(shootingStar);
+            
+            setTimeout(() => {
+                shootingStar.remove();
+            }, 3000);
+        }
+
+        // Update Space Fact
+        function updateSpaceFact() {
+            const factText = document.getElementById('fact-text');
+            const randomFact = SPACE_FACTS[Math.floor(Math.random() * SPACE_FACTS.length)];
+            
+            factText.style.opacity = '0';
+            setTimeout(() => {
+                factText.textContent = randomFact;
+                factText.style.opacity = '1';
+            }, 300);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createStars();
+            updateSpaceFact();
+            
+            // Create shooting stars periodically
+            setInterval(createShootingStar, 5000);
+            
+            // Upper Buttons
+            const anchorButtons = document.querySelectorAll('.interactive-button-wrapper'); 
+            
+            anchorButtons.forEach(anchor => {
+                anchor.addEventListener('click', (event) => {
+                    const targetId = anchor.getAttribute('data-target');
+                    const isExternalLink = anchor.hasAttribute('data-link'); 
+
+                    if (!isExternalLink) {
+                        event.preventDefault();
+                    }
+                });
+            });
+
+            // Video Boxes
+            const videoBoxes = document.querySelectorAll('.video-box'); 
+            
+            videoBoxes.forEach(box => {
+                box.addEventListener('click', (event) => {
+                    event.preventDefault(); 
+                    const videoURL = box.getAttribute('data-video-url');
+                    window.open(videoURL, '_blank'); 
+                });
+            });
+        });
+
+        // Smooth transition for fact text
+        document.getElementById('fact-text').style.transition = 'opacity 0.3s ease';
+    </script>
+</body>
+</html>

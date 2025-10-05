@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indian Launch Vehicles Explorer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0d1a26;
+            --text-color: #e0f7fa;
+            --accent-color: #ff9800; /* Orange/Gold for highlight */
+            --card-bg: #1b263b;
+            --border-color: #3f51b5;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent-color);
+            text-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
+            font-size: 2.5rem;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* --- Main Interactive Layout --- */
+        .explorer-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr; /* Image column and Content column */
+            gap: 2rem;
+            min-height: 60vh;
+        }
+
+        /* --- Rocket Selection/Image Panel --- */
+        .image-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .rocket-selector {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .rocket-selector:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 152, 0, 0.2);
+        }
+
+        .rocket-selector.active {
+            border-color: var(--accent-color);
+            background-color: #2c3e50;
+            box-shadow: 0 0 20px var(--accent-color);
+        }
+
+        .rocket-selector img {
+            max-height: 80px;
+            width: auto;
+            margin-right: 1rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .rocket-selector.active img {
+            transform: scale(1.05);
+        }
+
+        .rocket-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            color: var(--text-color);
+        }
+
+        /* --- Content Display Panel --- */
+        .content-panel {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-header h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent-color);
+            font-size: 2rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        .content-text p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        li strong {
+            color: var(--accent-color);
+        }
+
+        /* --- Responsive Adjustments --- */
+        @media (max-width: 900px) {
+            .explorer-grid {
+                grid-template-columns: 1fr; /* Stack columns on smaller screens */
+            }
+            .image-panel {
+                flex-direction: row; /* Make rocket selectors horizontal tabs */
+                overflow-x: auto;
+                padding-bottom: 0.5rem; /* Space for scrollbar */
+                align-items: stretch;
+            }
+            .rocket-selector {
+                flex-shrink: 0; /* Prevent buttons from shrinking too much */
+                width: 30%;
+                min-width: 120px;
+                justify-content: center;
+                flex-direction: column;
+                text-align: center;
+            }
+            .rocket-selector img {
+                max-height: 60px;
+                margin: 0 auto 0.5rem auto;
+            }
+            .rocket-title {
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 500px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            .content-panel {
+                padding: 1.5rem;
+            }
+            .rocket-selector {
+                min-width: 100px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Indian Launch Vehicle Fleet</h1>
+        <p>Explore the rockets that power India's space missions.</p>
+    </header>
+
+    <div class="container explorer-grid">
+        
+        <div class="image-panel">
+            
+            <div id="pslv-selector" class="rocket-selector active" data-rocket="pslv">
+                <img src="PSLV.webp" alt="PSLV Image Placeholder">
+                <span class="rocket-title">PSLV</span>
+            </div>
+
+            <div id="gslv-selector" class="rocket-selector" data-rocket="gslv">
+                 <img src="GSLV_main.webp" alt="GSLV Image Placeholder">
+                <span class="rocket-title">GSLV Mk II</span>
+            </div>
+
+            <div id="lvm3-selector" class="rocket-selector" data-rocket="lvm3">
+                 <img src="LVM3.webp" alt="LVM3 Image Placeholder">
+                <span class="rocket-title">LVM3</span>
+            </div>
+            
+        </div>
+
+        <div class="content-panel">
+            <div id="pslv-content" class="content-section active">
+                <div class="content-header">
+                    <h2>Polar Satellite Launch Vehicle (PSLV)</h2>
+                </div>
+                <div class="content-text">
+                 <P>LSV satellite vehicle:   Polar Satellite Launch Vehicle (PSLV) is the third generation launch vehicle of India. 
+                    It is the first Indian launch vehicle to be equipped with liquid stages. 
+                    After its first successful launch in October 1994, 
+                    PSLV emerged as a reliable and versatile workhorse launch vehicle of India. 
+                    The vehicle has launched numerous Indian and foreign customer satellites. 
+                    Besides, the vehicle successfully launched two spacecraft "Chandrayaan-1 in 2008 and Mars Orbiter Spacecraft in 2013"that later travelled to Moon and Mars respectively. Chandrayaan-1 and MOM were feathers in the hat of PSLV. The launch of PSLV-C48 marks the 50th Launch of PSLV. Besides, the vehicle successfully launched two spacecraft "
+                    Chandrayaan-1 in 2008 and Mars Orbiter Spacecraft in 2013"that later traveled to Moon and Mars respectively.
+               </P> </div>
+            </div>
+
+            <div id="gslv-content" class="content-section">
+                <div class="content-header">
+                    <h2>Geosynchronous Satellite Launch Vehicle Mark II (GSLV Mk II)</h2>
+                </div>
+                <div class="content-text">
+
+            <p>GlSV : Geosynchronous Satellite Launch Vehicle Mark II (GSLV Mk II) is the launch vehicle developed by India, to launch communication satellites in geo transfer orbit using cryogenic third stage. 
+               Initially Russian GK supplied cryogenic stages were used. Later cryogenic stage was indigenously developed and inducted in Jan 2014 from GSLV D5 onwards. This operational fourth generation launch vehicle is a three stage vehicle with four liquid strap-ons. The flight proven indigenously developed Cryogenic Upper Stage (CUS), forms the third stage of GSLV Mk II. 
+               From January 2014, the vehicle has achieved six consecutive successes</p>
+                </div>
+            </div>
+
+            <div id="lvm3-content" class="content-section">
+                <div class="content-header">
+                    <h2>Launch Vehicle Mark 3 (LVM3)</h2>
+                </div>
+                <div class="content-text">
+                    <p>
+                        LVM3 : LVM3 is configured as a three stage vehicle with two solid strap-on motors (S200), one liquid core stage (L110) and a high thrust cryogenic upper stage (C25). The S200 solid motor is among the largest solid boosters in the world with 204 tonnes of solid propellant. The liquid L110 stage uses a twin liquid engine configuration with 115 tonnes of liquid propellant, while the C25 Cryogenic upper stage is configured with the fully indigenous high thrust cryogenic engine (CE20) with a propellant loading of 28 tons. The overall length of the vehicle is 43.5 m with a gross lift-off weight of 640 tonnes and a 5m-diameter payload fairing.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+            console.log("you want to watch video");
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get all selector buttons and content sections
+            const selectors = document.querySelectorAll('.rocket-selector');
+            const contents = document.querySelectorAll('.content-section');
+
+            // Function to handle the click event
+            function showRocketContent(rocketId) {
+                // 1. Remove 'active' class from all selectors and content
+                selectors.forEach(sel => sel.classList.remove('active'));
+                contents.forEach(con => con.classList.remove('active'));
+
+                // 2. Add 'active' class to the clicked selector
+                document.getElementById(rocketId + '-selector').classList.add('active');
+
+                // 3. Add 'active' class to the corresponding content
+                document.getElementById(rocketId + '-content').classList.add('active');
+            }
+
+            // Attach event listeners to all selector buttons
+            selectors.forEach(selector => {
+                selector.addEventListener('click', (event) => {
+                    const rocketId = event.currentTarget.dataset.rocket;
+                    showRocketContent(rocketId);
+                });
+            });
+            
+            // Set the default view to PSLV on page load (already done in HTML with 'active' class, but good practice to handle it in JS too if needed)
+            // showRocketContent('pslv');
+        });
+    
+    </script>
+</body>
+</html>

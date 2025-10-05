@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Weather Impacts Hub</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-bg: #00000a;
+            --secondary-bg: #0a0a1a;
+            --text-color: #e0e1dd;
+            --accent-glow: #ff5252; /* Reddish for warning/impacts */
+            --button-bg: #2a0000;
+            --button-border: #f44336;
+            --button-hover-bg: #4a0000;
+            --section-border: #800000;
+        }
+        
+        /* --- NEW VIDEO BACKGROUND STYLES --- */
+        #video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -100; /* Ensure it is behind everything */
+            object-fit: cover; /* Ensures video covers entire screen without distortion */
+            filter: brightness(0.4) saturate(1.1); /* Darken and enhance color slightly for readability */
+        }
+        /* --- END VIDEO BACKGROUND STYLES --- */
+
+        body {
+            background-color: transparent; /* Must be transparent to see the video */
+            color: var(--text-color);
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            padding: 2.5rem 1rem 1.5rem;
+            max-width: 900px;
+            margin: 0 auto;
+            /* Give header a subtle background for contrast over the video */
+            background: rgba(0, 0, 0, 0.4); 
+            width: 100%;
+        }
+
+        header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            color: var(--accent-glow);
+            text-shadow: 0 0 15px var(--accent-glow);
+            margin: 0 0 1rem 0;
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            color: rgba(224, 225, 221, 0.9);
+        }
+
+        .impact-button-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            padding: 2rem 1rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .impact-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 220px;
+            height: 220px;
+            /* Subtly change button background to be transparent over the video */
+            background-color: rgba(42, 0, 0, 0.8); 
+            border: 2px solid var(--button-border);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text-color);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(244, 67, 54, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .impact-button:hover {
+            transform: translateY(-8px) scale(1.03);
+            background-color: rgba(74, 0, 0, 0.9);
+            border-color: #ff8a80;
+            box-shadow: 0 0 20px #ff8a80, 0 0 40px rgba(255, 138, 128, 0.5);
+            color: white;
+        }
+
+        .button-icon {
+            font-size: 3rem;
+            margin-bottom: 0.8rem;
+            color: var(--accent-glow);
+            text-shadow: 0 0 8px var(--accent-glow);
+            transition: transform 0.3s ease;
+        }
+
+        .impact-button:hover .button-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        footer {
+            margin-top: 4rem;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #778da9;
+            background-color: rgba(10, 10, 26, 0.9); /* Opaque footer */
+            width: 100%;
+            border-top: 1px solid #4a0000;
+        }
+
+        /* NEW STYLES FOR SOLAR FLARE SIMULATOR */
+        .simulator-section {
+            max-width: 900px;
+            width: 90%;
+            margin: 3rem auto;
+            padding: 2rem;
+            background-color: rgba(10, 10, 26, 0.85); /* Semi-transparent background */
+            border: 1px solid var(--section-border);
+            border-radius: 10px;
+            box-shadow: 0 0 25px rgba(255, 82, 82, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .simulator-section h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: #4da6ff; 
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .flare-controls {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .flare-button {
+            padding: 10px 20px;
+            border: 2px solid #4da6ff;
+            background-color: #002b55;
+            color: var(--text-color);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+        }
+
+        .flare-button:hover, .flare-button.active {
+            background-color: #4da6ff;
+            color: var(--primary-bg);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(77, 166, 255, 0.5);
+        }
+
+        .earth-simulator {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            /* Placeholder for Earth image */
+            background-image: url('https://i.imgur.com/gK9vN2j.png'); 
+            background-size: cover;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8), inset 0 0 50px rgba(0, 0, 0, 0.5);
+            margin-bottom: 1.5rem;
+        }
+
+        .impact-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            opacity: 0; 
+            transition: opacity 1.5s ease;
+        }
+
+        /* Specific Impact Styles */
+        .impact-c { opacity: 0 !important; } 
+
+        .impact-m {
+            opacity: 0.6;
+            background: radial-gradient(circle at 50% 15%, rgba(255, 140, 0, 0.8) 10%, transparent 40%),
+                        radial-gradient(circle at 50% 85%, rgba(255, 140, 0, 0.8) 10%, transparent 40%);
+        }
+
+        .impact-x {
+            opacity: 0.8;
+            background: linear-gradient(to right, rgba(255, 0, 0, 0.6), rgba(255, 165, 0, 0.8), transparent 80%);
+            box-shadow: 0 0 30px #ff0000;
+        }
+
+        .impact-details {
+            min-height: 150px;
+            text-align: center;
+            padding: 1rem;
+            background-color: #001a33;
+            border-radius: 5px;
+            border: 1px solid #4da6ff;
+            width: 90%;
+        }
+
+        .impact-details h3 {
+            color: var(--accent-glow);
+            font-family: 'Orbitron', sans-serif;
+            margin-top: 0;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .earth-simulator {
+                width: 250px;
+                height: 250px;
+            }
+        }
+        @media (max-width: 480px) {
+            .earth-simulator {
+                width: 200px;
+                height: 200px;
+            }
+            .flare-controls {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <video autoplay muted loop id="video-background">
+        <source src="solar_flare.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <!-- <header>
+        <h1>Space Weather Impacts</h1>
+        <p>Explore the powerful phenomena from the Sun and space that can affect Earth and our technology.</p>
+    </header> -->
+
+    <!-- <main>
+        <div class="impact-button-container">
+            <a href="solar_flares.html" class="impact-button" rel="noopener noreferrer">
+                <span class="button-icon">☀️</span>
+                Solar Flares
+            </a>
+
+            <a href="CME.html" class="impact-button" rel="noopener noreferrer">
+                <span class="button-icon">💨</span>
+                Coronal Mass Ejections (CME)
+            </a>
+
+            <a href="geomagnetic_strom.html" class="impact-button" rel="noopener noreferrer">
+                <span class="button-icon">⚡</span>
+                Geomagnetic Storms
+            </a>
+
+            <a href="cosmic_rays.html" class="impact-button" rel="noopener noreferrer">
+                <span class="button-icon">🌌</span>
+                Cosmic Rays
+            </a>
+        </div> -->
+        
+        <section class="simulator-section">
+            <h2>☀️ Solar Flare Impact Simulator</h2>
+            <p>Select a flare class to see how it affects Earth's technology, primarily by causing **Radio Blackouts** on the sunlit side.</p>
+
+            <div class="flare-controls">
+                <button class="flare-button" data-flare-class="C">C-Class (Small)</button>
+                <button class="flare-button" data-flare-class="M">M-Class (Medium)</button>
+                <button class="flare-button" data-flare-class="X">X-Class (Large)</button>
+            </div>
+
+            <div class="earth-simulator">
+                <div id="impact-overlay" class="impact-overlay"></div>
+                </div>
+
+            <div id="impact-details" class="impact-details">
+                <h3>Select a Flare Class to Begin!</h3>
+                <p>Learn how the Sun's magnetic energy can disrupt our modern world. Solar flares are classified based on their X-ray intensity (A, B, C, M, X).</p>
+            </div>
+
+        </section>
+        </main>
+
+    <footer>
+        <p>Created by SaVeya Group for an interactive space learning experience. Data from NOAA, NASA, and ESA.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const flareButtons = document.querySelectorAll('.flare-button');
+            const impactOverlay = document.getElementById('impact-overlay');
+            const impactDetails = document.getElementById('impact-details');
+
+            flareButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const flareClass = button.getAttribute('data-flare-class');
+                    
+                    // 1. Update button styling (Active State)
+                    flareButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    
+                    // 2. Clear previous visual impact
+                    impactOverlay.className = 'impact-overlay'; 
+                    
+                    // 3. Set new visual impact and details
+                    switch (flareClass) {
+                        case 'C':
+                            // C-class flares are too weak to noticeably affect Earth.
+                            impactOverlay.classList.add('impact-c');
+                            impactDetails.innerHTML = `
+                                <h3>C-Class Flare (Small)</h3>
+                                <p><strong>Impact: NONE.</strong> These are common, small flares (like a small cough from the Sun). They are too weak to noticeably affect Earth's systems.</p>
+                            `;
+                            break;
+
+                        case 'M':
+                            // M-class flares can cause brief radio blackouts at the poles.
+                            impactOverlay.classList.add('impact-m');
+                            impactDetails.innerHTML = `
+                                <h3>M-Class Flare (Medium)</h3>
+                                <p><strong>Impact: MINOR RADIO BLACKOUTS.</strong> 
+                                    
+                            <p>These flares can cause brief and minor disruptions to radio communications, primarily near the Earth's poles. Astronauts may need minor precautions.</p>
+                            
+                            Cause and Location: These phenomena take place in 'sunspots'. They are produced as highly energetic outflows from the sun, known as Coronal Mass Ejections (CME). Effect and energy: During a solar flare, an electric-magnetic charge stream at high speed to ear th The sun's magnetic structure of the release of light and heat into electricity consumption.
+
+                                  Impact on Earth's Atmosphere: The intense magnetic radiation released from solar flares are captured by the atmosphere of Earth.</p>
+                            
+                            
+                            
+                            
+                            
+                            
+                                `;
+                            break;
+
+                        case 'X':
+                            // X-class flares can cause major radio blackouts and radiation storms.
+                            impactOverlay.classList.add('impact-x');
+                            impactDetails.innerHTML = `
+                                <h3>X-Class Flare (Large)</h3>
+                                <p><strong>Impact: MAJOR RADIO BLACKOUTS & RADIATION.</strong> These are the strongest flares (powerful explosion). They can cause widespread, severe radio blackouts on the entire sunlit side of Earth, last for hours, and cause radiation hazards for satellites and polar flights.</p>
+                            
+                            <p>
+                                Effect on Earth's Atmosphere: The high magnetic radiation released from solar flares is absorbed by the Earth's upper atmosphere, specifically the ionosphere , during daylight hours and does not reach the planet's surface 
+
+                              Real-World Consequence: These events directly affect radio communication on Earth  The video concludes by stating that understanding solar flares is essential for comprehending the effects of solar activities
+                                </p>
+                            
+                            
+                                `;
+                            break;
+
+                        default:
+                            impactDetails.innerHTML = `
+                                <h3>Error: Unknown Flare Class</h3>
+                                <p>Please select a valid flare class to see the simulation.</p>
+                            `;
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
